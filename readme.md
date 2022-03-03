@@ -7,6 +7,11 @@ Differ by universe.
 </p>
 
 <p>
+Each Module's use cases are in ./test/T*.py
+
+</p>
+
+<p>
 Output should be
 
 ```
