@@ -7,7 +7,6 @@ import json
 
 
 class MSSQL:
-
     @classmethod
     def __get_instance(cls):
         return cls.__instance
