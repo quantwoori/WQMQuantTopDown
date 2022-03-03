@@ -93,6 +93,20 @@ class UniverseSizeSmall(SmallUniverse):
         return d
 
 
+class UniverseSizeFactory:
+    def create_universe(self, size:str):
+        cond_s = size == "s"
+        cond_m = size == "m"
+        cond_b = size == "b"
+
+        if cond_s:
+            return UniverseSizeSmall()
+        elif cond_m:
+            return UniverseSizeMiddle()
+        elif cond_b:
+            return UniverseSizeBig()
+
+
 class UniverseStyle(SmallUniverse):
     def get_universe(self):
         """
@@ -100,12 +114,3 @@ class UniverseStyle(SmallUniverse):
         """
         return None
 
-
-if __name__ == "__main__":
-    # Factory Test
-    sb = UniverseSizeBig()
-    sm = UniverseSizeMiddle()
-    ss = UniverseSizeSmall()
-
-    s0 = ss.get_universe(2021, 1, True)
-    s1 = ss.get_universe(2021, 1, False)
