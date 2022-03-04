@@ -53,6 +53,7 @@ class Eigen(EigenBackEnd):
         )
         r.VAL = r.VAL.astype('float64')
         r = r.pivot_table(index='TRD_DT', columns='STK_CD')
+        r = r.sort_index()
         r.columns = [s for _, s in r.columns]
         return r
 
@@ -65,6 +66,7 @@ class Eigen(EigenBackEnd):
         )
         r.VAL = r.VAL.astype('float64')
         r = r.pivot_table(index='TRD_DT', columns='STK_CD')
+        r = r.sort_index()
         r.columns = [s for _, s in r.columns]
         return r
 
@@ -84,7 +86,7 @@ class Eigen(EigenBackEnd):
             s.append(hist_rtn)
 
         result = {
-            'best': weights[weights.columns[s.index(max(s))]],
-            'wrst': weights[weights.columns[s.index(min(s))]],
+            'best': (max(s), weights[weights.columns[s.index(max(s))]]),
+            'wrst': (min(s), weights[weights.columns[s.index(min(s))]]),
         }
         return result
