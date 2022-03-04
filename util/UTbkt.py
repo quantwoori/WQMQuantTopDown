@@ -3,8 +3,6 @@ from dbm.DBquant import PyQuantiwise
 from eigen.Esize import Eigen
 
 # Other
-import pandas as pd
-
 from typing import Tuple
 from datetime import datetime
 
@@ -62,7 +60,9 @@ class BackTest:
             result[(y, m)] = e.choose_eigp(histprc=prc, weights=pf)
         return result
 
-    def get_idx(self, on_what:str):
+    def get_idx(self, on_what:str, start:str, finish:str):
+        assert len(start) == 8, "Check the starting date"
+        assert len(finish) == 8, "Check the finishing date"
         idx_strt = {
             's': 'IKS004',
             'm': 'IKS003',
@@ -70,9 +70,9 @@ class BackTest:
         }
         m = self.qt.ind_data(
             index_code=idx_strt[on_what],
-            start_date='20210101',
-            end_date='20210201',
-            item='종가지수'
+            start_date=start,
+            end_date=finish,
+            item='시가지수'
         )
         m.VAL = m.VAL.astype('float32')
         return m
