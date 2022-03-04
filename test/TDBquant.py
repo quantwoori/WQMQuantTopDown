@@ -20,7 +20,7 @@ t2 = quantiwise.stk_data_multi(
 
 # Test.3 # ind_data
 t3 = quantiwise.ind_data(
-    index_code='IKS001',
+    index_code='IKS002',
     start_date='20210101',
     end_date='20210201',
     item='종가지수'

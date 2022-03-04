@@ -8,7 +8,7 @@ test_date = datetime(2022, 2, 28)
 e = Eigen(test_date, 2, 's')
 
 r = e.get_univ()
-m = e.match_price(r)
+m = e.match_hist_price(r)
 n0 = e.get_eigp(m)
 
 
@@ -16,7 +16,7 @@ n0 = e.get_eigp(m)
 e = Eigen(test_date, 2, 'm')
 
 r = e.get_univ()
-m = e.match_price(r)
+m = e.match_hist_price(r)
 n1 = e.get_eigp(m)
 
 
@@ -24,6 +24,7 @@ n1 = e.get_eigp(m)
 e = Eigen(test_date, 2, 'b')
 
 r = e.get_univ()
-m = e.match_price(r)
+m = e.match_hist_price(r)
 n2 = e.get_eigp(m)
+ce = e.choose_eigp(histprc=m, weights=n2)
 
