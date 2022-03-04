@@ -5,7 +5,7 @@ from eigen.E import EigenBackEnd
 # Other
 import pandas as pd
 from datetime import datetime
-from typing import Iterable, List
+from typing import Iterable, List, Dict
 
 
 class Eigen(EigenBackEnd):
@@ -44,7 +44,7 @@ class Eigen(EigenBackEnd):
         )
         return [stk for _, _, _, stk, _ in univ]
 
-    def match_price(self, univ:Iterable) -> pd.DataFrame:
+    def match_hist_price(self, univ:Iterable) -> pd.DataFrame:
         r = self.qt.stk_data_multi(
             stock_code_ls=univ,
             start_date=self.DTSET[2],
@@ -55,3 +55,36 @@ class Eigen(EigenBackEnd):
         r = r.pivot_table(index='TRD_DT', columns='STK_CD')
         r.columns = [s for _, s in r.columns]
         return r
+
+    def match_futr_price(self, univ:Iterable) -> pd.DataFrame:
+        r = self.qt.stk_data_multi(
+            stock_code_ls=univ,
+            start_date=self.DTSET[0],
+            end_date=self.DTSET[1],
+            item='수정시가'
+        )
+        r.VAL = r.VAL.astype('float64')
+        r = r.pivot_table(index='TRD_DT', columns='STK_CD')
+        r.columns = [s for _, s in r.columns]
+        return r
+
+    def choose_eigp(self, histprc:pd.DataFrame, weights:pd.DataFrame) -> Dict:
+        histprc = histprc.bfill()
+        mrtn0 = histprc[:histprc.index[0]]
+        mrtn1 = histprc[histprc.index[-1]:]
+        mrtn = pd.concat([mrtn0, mrtn1]).pct_change().dropna().transpose()
+        mrtn = mrtn[mrtn.columns[0]]
+
+        s = list()
+        for cols in weights.columns:
+            r = pd.concat([weights[cols], mrtn], axis=1)
+            r.columns = ['weight', 'mrtn']
+            hist_rtn = (r['weight'] * r['mrtn']).sum()
+
+            s.append(hist_rtn)
+
+        result = {
+            'best': weights[weights.columns[s.index(max(s))]],
+            'wrst': weights[weights.columns[s.index(min(s))]],
+        }
+        return result

@@ -25,13 +25,16 @@ class EigenBackEnd:
         self.PORTNO = portnumber
         self.STDARD = divide_std
 
-    def match_price(self, *args, **kwargs):
+    def match_hist_price(self, *args, **kwargs):
+        pass
+
+    def match_futr_price(self, *args, **kwargs):
         pass
 
     def get_univ(self, *args, **kwargs):
         pass
 
-    def main(self, *args, **kwargs):
+    def choose_eigp(self, *args, **kwargs):
         pass
 
     @staticmethod
@@ -39,7 +42,7 @@ class EigenBackEnd:
                   direction:bool) -> pd.DataFrame:
         if direction is True:
             l = long_portfolio * 0
-            return pd.concat([l, short_portfolio])
+            return pd.concat([l, short_portfolio * -1])
         else:
             s = short_portfolio * 0
             return pd.concat([long_portfolio, s])
@@ -84,10 +87,7 @@ class EigenBackEnd:
             wneg = self._get_2eig(w_long, w_short, False)
 
             result_seg = pd.concat([wpos, wneg], axis=1)
-            result_seg.columns = [
-                f"p{i}pos", f"p{i}neg"
-            ]
+            result_seg.columns = [f"p{i}pos", f"p{i}neg"]
             result = pd.concat([result, result_seg], axis=1)
         return result
-
 
