@@ -70,7 +70,7 @@ class EigenBackEnd:
         :param data: Price dataframe.
         :return:
         """
-        df = data.pct_change().dropna()
+        df = data.bfill().pct_change().dropna()
         potential_w = self._calc_eig(df)
         result = pd.DataFrame(None)
 

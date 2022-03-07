@@ -23,10 +23,10 @@ if __name__ == "__main__":
 
     # Small
     results = bt.backtest(on_what='s')
-    mb, mw = list(), list()
+    sb, sw = list(), list()
     for k in results.keys():
-        mb.append(results[k]['best'][0])
-        mw.append(results[k]['wrst'][0])
+        sb.append(results[k]['best'][0])
+        sw.append(results[k]['wrst'][0])
 
     # Index
     idxb = bt.get_idx('b', sstr, estr)

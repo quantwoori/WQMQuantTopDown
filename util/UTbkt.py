@@ -54,9 +54,7 @@ class BackTest:
 
             univ = e.get_univ()
             prc = e.match_hist_price(univ)
-            pf = e.get_eigp(
-                data=e.match_hist_price(univ)
-            )
+            pf = e.get_eigp(data=prc)
             result[(y, m)] = e.choose_eigp(histprc=prc, weights=pf)
         return result
 
