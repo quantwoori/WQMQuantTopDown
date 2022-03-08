@@ -4,7 +4,7 @@ from eigen.Esize import Eigen
 
 # Other
 from typing import Tuple
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class BackTest:
@@ -56,6 +56,26 @@ class BackTest:
             prc = e.match_hist_price(univ)
             pf = e.get_eigp(data=prc)
             result[(y, m)] = e.choose_eigp(histprc=prc, weights=pf)
+        return result
+
+    def backtest_weekly(self, on_what:str):
+        date_ls = self.set_dates()
+        result = dict()
+        (y, m), (ey, em) = date_ls[0], date_ls[-1]
+        ds = datetime(year=y, month=m, day=1)
+        while True:
+            print(ds)
+            e = Eigen(date=ds,
+                      portnumber=self.PORTCOUNT,
+                      divide_std=on_what)
+            univ = e.get_univ()
+            prc = e.match_hist_price(univ)
+            pf = e.get_eigp(data=prc)
+            result[(ds.year, ds.month, ds.day)] = e.choose_eigp(histprc=prc, weights=pf)
+            ds += timedelta(days=7)
+
+            if ds > datetime(year=ey, month=em, day=1):
+                break
         return result
 
     def get_idx(self, on_what:str, start:str, finish:str):

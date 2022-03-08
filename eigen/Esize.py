@@ -4,7 +4,7 @@ from eigen.E import EigenBackEnd
 
 # Other
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Iterable, List, Dict
 
 
@@ -13,27 +13,36 @@ class Eigen(EigenBackEnd):
         super().__init__(date, portnumber, divide_std)
 
         # LOCAL CLASS CONSTANT
-        self.DTSET = self.set_dates()
+        self.DTSET = self.set_dates(weekly=True, howmany=15)
 
-    def set_dates(self) -> (int, int, str, str):
+    def set_dates(self, weekly:bool=False, howmany:int=None) -> (int, int, str, str):
         univ_dt_y, univ_dt_m = self.DT.year, self.DT.month
         if univ_dt_m == 1:
-            hist_dt_y = univ_dt_y - 1
-            hist_dt_m = 12
+            if weekly is False:
+                hist_dt_y = univ_dt_y - 1
+                hist_dt_m = 12
 
-            hist_dt_start = f"{hist_dt_y}{hist_dt_m}01"
-            hist_dt_end = f"{hist_dt_y + 1}0101"
+                hist_dt_start = f"{hist_dt_y}{hist_dt_m}01"
+                hist_dt_end = f"{hist_dt_y + 1}0101"
+            else:
+                hist_dt_start = (self.DT - timedelta(days=(howmany + 1))).strftime('%Y%m%d')
+                hist_dt_end = (self.DT - timedelta(days=1)).strftime('%Y%m%d')
 
         else:
-            hist_dt_y = univ_dt_y - 1
-            hist_dt_m = univ_dt_m - 1
+            if weekly is False:
+                hist_dt_y = univ_dt_y - 1
+                hist_dt_m = univ_dt_m - 1
 
-            addzero = lambda x: '0' * (len(str(x)) == 1)
+                addzero = lambda x: '0' * (len(str(x)) == 1)
 
-            hist_dt_start = f"{hist_dt_y}{addzero(hist_dt_m)}{str(hist_dt_m)}01"
-            hist_dt_end = f"{hist_dt_y}{addzero(hist_dt_m + 1)}{hist_dt_m + 1}01"
+                hist_dt_start = f"{hist_dt_y}{addzero(hist_dt_m)}{str(hist_dt_m)}01"
+                hist_dt_end = f"{hist_dt_y}{addzero(hist_dt_m + 1)}{hist_dt_m + 1}01"
+            else:
+                hist_dt_start = (self.DT - timedelta(days=(howmany + 1))).strftime('%Y%m%d')
+                hist_dt_end = (self.DT - timedelta(days=1)).strftime('%Y%m%d')
 
         return univ_dt_y, univ_dt_m, hist_dt_start, hist_dt_end
+
 
     def get_univ(self, with_restriction:bool=True) -> List:
         univ = UniverseSizeFactory(
