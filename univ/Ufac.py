@@ -1,7 +1,9 @@
 from dbm.DBmssql import MSSQL
+from dbm.DBquant import PyQuantiwise
 from rstrct.RSTuniv import UniverseRestrict
 from abc import ABC, abstractmethod
-from typing import Tuple
+from typing import Tuple, List
+from datetime import datetime, timedelta
 
 
 class SmallUniverse(ABC):
@@ -13,10 +15,12 @@ class SmallUniverse(ABC):
     """
     server = MSSQL.instance()
     server.login(id='wsol2', pw='wsol2')
+    data = PyQuantiwise()
     index_name = {
         'big': 'ksbig',
         'middle': 'ksmid',
-        'small': 'kssml'
+        'small': 'kssml',
+        '200': 'ks200'
     }
     restriction = UniverseRestrict.kh03
 
@@ -108,9 +112,36 @@ class UniverseSizeFactory:
 
 
 class UniverseStyle(SmallUniverse):
-    def get_universe(self):
+
+    def __init__(self):
+        self.typ = '200'
+
+    def get_universe(self, y:int, m:int, rstrct:bool) -> List:
         """
         TBD
         """
-        return None
+        d = self.retrieve_universe(year=y, month=m, restriction=rstrct)
+        d = [r[3] for r in d]
 
+        def get_no_consen(stks, no_consensus:int=2) -> List:
+            dt = datetime(year=y, month=m, day=1)
+            while True:
+                df = self.data.css_data_multi(
+                    stock_code_ls=stks,
+                    qry_date=dt.strftime('%Y%m%d'),
+                    item='투자의견참여증권사'
+                )
+                if df.empty:
+                    dt += timedelta(days=1)
+                else:
+                    return df.loc[df.VAL <= no_consensus].CMP_CD.tolist()
+
+        return get_no_consen(d)
+
+
+class UniverseStyleFactory:
+    def create_universe(self, style:str):
+        cond_consen = style == 'consensus'
+
+        if cond_consen:
+            return UniverseStyle()
