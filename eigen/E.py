@@ -20,7 +20,9 @@ class EigenBackEnd:
         self.db.login(id='wsol2', pw='wsol2')
 
         # CLASS CONSTANT
-        assert divide_std in {'s', 'm', 'b'}
+        size_question = divide_std in {'s', 'm', 'b'}
+        style_question = divide_std in {'consensus'}
+        assert style_question or size_question, f"{divide_std} not available"
         self.DT = date
         self.PORTNO = portnumber
         self.STDARD = divide_std
