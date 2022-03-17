@@ -1,5 +1,6 @@
 # Custom Package
 from univ.Ufac import UniverseSizeFactory
+from univ.Ufac import UniverseStyleFactory
 from eigen.E import EigenBackEnd
 
 # Other
@@ -43,15 +44,24 @@ class Eigen(EigenBackEnd):
 
         return univ_dt_y, univ_dt_m, hist_dt_start, hist_dt_end
 
+    def get_univ(self, standard:str, with_restriction:bool=True) -> List:
+        if standard == 'size':
+            univ = UniverseSizeFactory(
+            ).create_universe(
+                self.STDARD
+            ).get_universe(
+                self.DT.year, self.DT.month, True
+            )
+            return [stk for _, _, _, stk, _ in univ]
 
-    def get_univ(self, with_restriction:bool=True) -> List:
-        univ = UniverseSizeFactory(
-        ).create_universe(
-            self.STDARD
-        ).get_universe(
-            self.DT.year, self.DT.month, with_restriction
-        )
-        return [stk for _, _, _, stk, _ in univ]
+        if standard == 'style':
+            univ = UniverseStyleFactory(
+            ).create_universe(
+                self.STDARD
+            ).get_universe(
+                self.DT.year, self.DT.month, False
+            )
+            return univ
 
     def match_hist_price(self, univ:Iterable) -> pd.DataFrame:
         r = self.qt.stk_data_multi(
