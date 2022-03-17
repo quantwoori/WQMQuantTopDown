@@ -1,5 +1,6 @@
 from univ.Ufac import UniverseSizeBig, UniverseSizeMiddle, UniverseSizeSmall
 from univ.Ufac import UniverseSizeFactory
+from univ.Ufac import UniverseStyleFactory
 
 # Factory Test
 sb = UniverseSizeBig()
@@ -21,3 +22,6 @@ big1 = sb.get_universe(2021, 1, False)
 # Test: Factory
 u = UniverseSizeFactory().create_universe('s').get_universe(2021, 1, True)
 print(u)
+
+# TEST: Factory Style
+us = UniverseStyleFactory().create_universe('consensus').get_universe(2021, 12, False)
