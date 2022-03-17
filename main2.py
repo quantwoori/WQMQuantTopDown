@@ -9,7 +9,7 @@ if __name__ == "__main__":
     bt = BackTest(s, e)
 
     # Big
-    resultb = bt.backtest_weekly(on_what='b')
+    resultb = bt.backtest_weekly(on_typ='size', on_what='b')
     bb, bw = list(), list()
     bbdf, bwdf = pd.DataFrame(None), pd.DataFrame(None)
     for k in resultb.keys():
@@ -26,7 +26,7 @@ if __name__ == "__main__":
     bwdf.to_csv('bwdf.csv')
 
     # Middle
-    resultm = bt.backtest_weekly(on_what='m')
+    resultm = bt.backtest_weekly(on_typ='size', on_what='m')
     mb, mw = list(), list()
     mbdf, mwdf = pd.DataFrame(None), pd.DataFrame(None)
     for k in resultm.keys():
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     mwdf.to_csv('mwdf.csv')
 
     # Small
-    results = bt.backtest_weekly(on_what='s')
+    results = bt.backtest_weekly(on_typ='size', on_what='s')
     sb, sw = list(), list()
     sbdf, swdf = pd.DataFrame(None), pd.DataFrame(None)
     for k in results.keys():

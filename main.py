@@ -8,21 +8,21 @@ if __name__ == "__main__":
     bt = BackTest(s, e)
 
     # Big
-    resultb = bt.backtest(on_what='b')
+    resultb = bt.backtest(on_typ='size', on_what='b')
     bb, bw = list(), list()
     for k in resultb.keys():
         bb.append(resultb[k]['best'][0])
         bw.append(resultb[k]['wrst'][0])
 
     # Middle
-    resultm = bt.backtest(on_what='m')
+    resultm = bt.backtest(on_typ='size', on_what='m')
     mb, mw = list(), list()
     for k in resultm.keys():
         mb.append(resultm[k]['best'][0])
         mw.append(resultm[k]['wrst'][0])
 
     # Small
-    results = bt.backtest(on_what='s')
+    results = bt.backtest(on_typ='size', on_what='s')
     sb, sw = list(), list()
     for k in results.keys():
         sb.append(results[k]['best'][0])
