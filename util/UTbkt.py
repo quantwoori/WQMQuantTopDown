@@ -1,6 +1,6 @@
 # Custom Package
 from dbm.DBquant import PyQuantiwise
-from eigen.Esize import Eigen
+from eigen.Es import Eigen
 
 # Other
 from typing import Tuple
@@ -42,7 +42,7 @@ class BackTest:
                     )
         return result
 
-    def backtest(self, on_what:str):
+    def backtest(self, on_typ:str, on_what:str):
         date_ls = self.set_dates()
         result = dict()
         for y, m in date_ls:
@@ -52,13 +52,13 @@ class BackTest:
                       portnumber=self.PORTCOUNT,
                       divide_std=on_what)
 
-            univ = e.get_univ()
+            univ = e.get_univ(standard=on_typ)
             prc = e.match_hist_price(univ)
             pf = e.get_eigp(data=prc)
             result[(y, m)] = e.choose_eigp(histprc=prc, weights=pf)
         return result
 
-    def backtest_weekly(self, on_what:str):
+    def backtest_weekly(self, on_typ:str, on_what:str):
         date_ls = self.set_dates()
         result = dict()
         (y, m), (ey, em) = date_ls[0], date_ls[-1]
@@ -68,7 +68,7 @@ class BackTest:
             e = Eigen(date=ds,
                       portnumber=self.PORTCOUNT,
                       divide_std=on_what)
-            univ = e.get_univ()
+            univ = e.get_univ(standard=on_typ)
             prc = e.match_hist_price(univ)
             pf = e.get_eigp(data=prc)
             result[(ds.year, ds.month, ds.day)] = e.choose_eigp(histprc=prc, weights=pf)
