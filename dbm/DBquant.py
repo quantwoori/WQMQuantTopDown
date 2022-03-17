@@ -34,7 +34,7 @@ class PyQuantiwise:
         # IMMUTABLE
         self.STK = self.__get_cols('WFNS2DB', 'TS_STK_DATA')
         self.IND = self.__get_cols('WFNS2DB', 'TS_IDX_DATA')
-        self.CSS = self.__get_cols('WFNR2DB', 'TT_CMP_CNS_DATA')
+        self.CSS = self.__get_cols('WFNR2DB', 'TT_CMP_CNS_EXT_DATA')
 
         self.STKESS = ['TRD_DT', 'STK_CD', 'VAL']
         self.INDESS = ['TRD_DT', 'SEC_CD', 'VAL']
@@ -79,16 +79,22 @@ class PyQuantiwise:
 
     @staticmethod
     def __multi_qry(ls:Iterable, typ:str) -> str:
+        assert typ in {'S', 'I', 'C'}
         result = list()
         if typ == 'S':
             for i in ls:
                 result.append(
                     f"STK_CD = '{i}'"
                 )
-        else:
+        elif typ == 'I':
             for i in ls:
                 result.append(
                     f"SEC_CD = '{i}'"
+                )
+        else:
+            for i in ls:
+                result.append(
+                    f"CMP_CD = '{i}'"
                 )
         return f"({' or '.join(result)})"
 
@@ -171,10 +177,46 @@ class PyQuantiwise:
         res = pd.DataFrame(res, columns=self.IND)
         return res[self.INDESS]
 
-    def css_data(self, index_code:str, start_date:str, end_date:str,
-                 item:str, tablename='TT_CMP_CNS_DATA') -> pd.DataFrame:
-        assert len(start_date) == 8, "start_date out of range"
-        assert len(end_date) == 8, "end_date out of range"
+    def css_data(self, stock_code:str, qry_date:str, item:str,
+                 tablename='TT_CMP_CNS_EXT_DATA') -> pd.DataFrame:
+        assert len(qry_date) == 8, "start_date out of range"
         assert item in Consensus.QRY_CODE.keys(), 'item out of range'
 
-        raise NotImplementedError
+        item_code = Consensus.QRY_CODE[item][0]
+        restrict = [
+            f"CMP_CD = '{stock_code}'",
+            f"ITEM_CD = '{item_code}'",
+            f"CNS_DT = '{qry_date}'",
+        ]
+        restrict = ' and '.join(restrict)
+        res = self.server.select_db(
+            database='WFNR2DB',
+            schema='dbo',
+            table=tablename,
+            column=self.CSS,
+            condition=restrict
+        )
+        res = pd.DataFrame(res, columns=self.CSS)
+        return res[self.CSSESS]
+
+    def css_data_multi(self, stock_code_ls:Iterable, qry_date:str, item:str,
+                       tablename='TT_CMP_CNS_EXT_DATA') -> pd.DataFrame:
+        assert len(qry_date) == 8, "qry_date out of range"
+        assert item in Consensus.QRY_CODE.keys(), 'item out of range'
+
+        item_code = Consensus.QRY_CODE[item][0]
+        restrict = [
+            self.__multi_qry(ls=stock_code_ls, typ='C'),
+            f"ITEM_CD = '{item_code}'",
+            f"CNS_DT = '{qry_date}'",
+        ]
+        restrict = ' and '.join(restrict)
+        res = self.server.select_db(
+            database='WFNR2DB',
+            schema='dbo',
+            table=tablename,
+            column=self.CSS,
+            condition=restrict
+        )
+        res = pd.DataFrame(res, columns=self.CSS)
+        return res[self.CSSESS]
