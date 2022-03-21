@@ -112,7 +112,7 @@ class Eigen(EigenBackEnd):
         r.columns = [s for _, s in r.columns]
         return r
 
-    def choose_eigp(self, histprc:pd.DataFrame, weights:pd.DataFrame) -> Dict:
+    def choose_eigp(self, histprc:pd.DataFrame, weights:pd.DataFrame) -> {str: List}:
         histprc = histprc.bfill()
         mrtn0 = histprc[:1]
         mrtn1 = histprc[len(histprc)-1:]
@@ -128,7 +128,7 @@ class Eigen(EigenBackEnd):
             s.append(hist_rtn)
 
         result = {
-            'best': (max(s), weights[weights.columns[s.index(max(s))]]),
-            'wrst': (min(s), weights[weights.columns[s.index(min(s))]]),
+            'best': [max(s), weights[weights.columns[s.index(max(s))]]],
+            'wrst': [min(s), weights[weights.columns[s.index(min(s))]]],
         }
         return result

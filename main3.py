@@ -13,8 +13,8 @@ if __name__ == "__main__":
     bb, bw = list(), list()
     bbdf, bwdf = pd.DataFrame(None), pd.DataFrame(None)
     for k in resultb.keys():
-        bb.append(resultb[k]['best'][0])
-        bw.append(resultb[k]['wrst'][0])
+        bb.append(resultb[k]['best'][2])
+        bw.append(resultb[k]['wrst'][2])
 
         bbdf = pd.concat([bbdf, resultb[k]['best'][1]], axis=1)
         bwdf = pd.concat([bwdf, resultb[k]['wrst'][1]], axis=1)
