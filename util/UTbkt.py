@@ -69,7 +69,6 @@ class BackTest:
                       portnumber=self.PORTCOUNT,
                       divide_std=on_what)
             univ = e.get_univ(standard=on_typ)
-            # TODO: 시가에 사서, 종가에 팔아라ㅇㅋ?
             prc = e.match_hist_price_oc(univ)
             pf = e.get_eigp(data=prc)
             result[(ds.year, ds.month, ds.day)] = e.choose_eigp(histprc=prc, weights=pf)
