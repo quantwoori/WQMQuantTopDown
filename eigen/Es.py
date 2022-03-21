@@ -76,6 +76,30 @@ class Eigen(EigenBackEnd):
         r.columns = [s for _, s in r.columns]
         return r
 
+    def match_hist_price_oc(self, univ:Iterable) -> pd.DataFrame:
+        ro = self.qt.stk_data_multi(
+            stock_code_ls=univ,
+            start_date=self.DTSET[2],
+            end_date=self.DTSET[3],
+            item='수정시가'
+        )
+        rc = self.qt.stk_data_multi(
+            stock_code_ls=univ,
+            start_date=self.DTSET[2],
+            end_date=self.DTSET[3],
+            item='수정주가'
+        )
+        ro.VAL = ro.VAL.astype('float64')
+        rc.VAL = rc.VAL.astype('float64')
+        ro = ro.pivot_table(index='TRD_DT', columns='STK_CD')
+        rc = rc.pivot_table(index='TRD_DT', columns='STK_CD')
+
+        ro, rc = ro.sort_index(), rc.sort_index()
+        r = pd.concat([ro, rc[len(ro)-1:]])  # ~ last day:open
+        r.columns = [s for _, s in r.columns]
+        return r
+
+
     def match_futr_price(self, univ:Iterable) -> pd.DataFrame:
         r = self.qt.stk_data_multi(
             stock_code_ls=univ,
@@ -91,8 +115,8 @@ class Eigen(EigenBackEnd):
 
     def choose_eigp(self, histprc:pd.DataFrame, weights:pd.DataFrame) -> Dict:
         histprc = histprc.bfill()
-        mrtn0 = histprc[:histprc.index[0]]
-        mrtn1 = histprc[histprc.index[-1]:]
+        mrtn0 = histprc[:1]
+        mrtn1 = histprc[len(histprc)-1:]
         mrtn = pd.concat([mrtn0, mrtn1]).pct_change().dropna().transpose()
         mrtn = mrtn[mrtn.columns[0]]
 

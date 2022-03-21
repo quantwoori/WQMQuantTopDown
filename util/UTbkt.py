@@ -3,7 +3,7 @@ from dbm.DBquant import PyQuantiwise
 from eigen.Es import Eigen
 
 # Other
-from typing import Tuple
+from typing import Tuple, Dict
 from datetime import datetime, timedelta
 
 
@@ -58,7 +58,7 @@ class BackTest:
             result[(y, m)] = e.choose_eigp(histprc=prc, weights=pf)
         return result
 
-    def backtest_weekly(self, on_typ:str, on_what:str):
+    def backtest_weekly(self, on_typ:str, on_what:str) -> Dict:
         date_ls = self.set_dates()
         result = dict()
         (y, m), (ey, em) = date_ls[0], date_ls[-1]
@@ -70,7 +70,7 @@ class BackTest:
                       divide_std=on_what)
             univ = e.get_univ(standard=on_typ)
             # TODO: 시가에 사서, 종가에 팔아라ㅇㅋ?
-            prc = e.match_hist_price(univ)
+            prc = e.match_hist_price_oc(univ)
             pf = e.get_eigp(data=prc)
             result[(ds.year, ds.month, ds.day)] = e.choose_eigp(histprc=prc, weights=pf)
             ds += timedelta(days=7)
