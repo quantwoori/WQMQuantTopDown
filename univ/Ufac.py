@@ -123,18 +123,24 @@ class UniverseStyle(SmallUniverse):
         d = self.retrieve_universe(year=y, month=m, restriction=rstrct)
         d = [r[3] for r in d]
 
-        def get_no_consen(stks, no_consensus:int=2) -> List:
+        def get_no_consen(stks, no_consensus:int=0) -> List:
             dt = datetime(year=y, month=m, day=1)
             while True:
-                df = self.data.css_data_multi(
+                df_cons = self.data.css_data_multi(
                     stock_code_ls=stks,
                     qry_date=dt.strftime('%Y%m%d'),
                     item='투자의견참여증권사'
                 )
-                if df.empty:
+                df = self.retrieve_universe(year=y, month=m, restriction=False)
+
+                if df_cons.empty:
                     dt += timedelta(days=1)
                 else:
-                    return df.loc[df.VAL <= no_consensus].CMP_CD.tolist()
+
+                    df_stk = set(df_cons.CMP_CD.tolist())
+                    df_miss = [r[3] for r in df if r[3] not in df_stk]  # VAL = 0
+
+                    return df_cons.loc[df_cons.VAL <= no_consensus].CMP_CD.to_list() + df_miss
 
         return get_no_consen(d)
 
