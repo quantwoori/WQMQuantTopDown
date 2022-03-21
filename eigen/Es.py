@@ -99,7 +99,6 @@ class Eigen(EigenBackEnd):
         r.columns = [s for _, s in r.columns]
         return r
 
-
     def match_futr_price(self, univ:Iterable) -> pd.DataFrame:
         r = self.qt.stk_data_multi(
             stock_code_ls=univ,
