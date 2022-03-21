@@ -9,12 +9,13 @@ if __name__ == "__main__":
     bt = BackTest(s, e)
 
     # No or Little Consensus
-    resultb = bt.backtest_weekly(on_typ='style', on_what='consensus')
-    bb, bw = list(), list()
+    resultb, resulti = bt.backtest_weekly(on_typ='style', on_what='consensus')
+    bb, bw, irtn = list(), list(), list()
     bbdf, bwdf = pd.DataFrame(None), pd.DataFrame(None)
     for k in resultb.keys():
         bb.append(resultb[k]['best'][2])
         bw.append(resultb[k]['wrst'][2])
+        irtn.append(resulti[k])
 
         bbdf = pd.concat([bbdf, resultb[k]['best'][1]], axis=1)
         bwdf = pd.concat([bwdf, resultb[k]['wrst'][1]], axis=1)
@@ -25,6 +26,9 @@ if __name__ == "__main__":
     bbdf.to_csv('bbdf.csv')
     bwdf.to_csv('bwdf.csv')
 
-    # Index
+    # Return
+    bbw = pd.DataFrame([bb, bw, irtn]).transpose()
+    bbw.index = list(resultb.keys())
+    bbw.index = [f"{datetime(y, m, d).strftime('%Y%m%d')}" for y, m, d in bbw.index]
 
 

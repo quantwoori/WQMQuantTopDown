@@ -59,9 +59,9 @@ class BackTest:
             result[(y, m)] = e.choose_eigp(histprc=prc, weights=pf)
         return result
 
-    def backtest_weekly(self, on_typ:str, on_what:str) -> Dict:
+    def backtest_weekly(self, on_typ:str, on_what:str) -> (Dict, Dict):
         date_ls = self.set_dates()
-        result, result_rtn = dict(), dict()
+        result_port, result_index = dict(), dict()
         (y, m), (ey, em) = date_ls[0], date_ls[-1]
         ds = datetime(year=y, month=m, day=1)
         while True:
@@ -72,26 +72,28 @@ class BackTest:
             univ = e.get_univ(standard=on_typ)
             prc = e.match_hist_price_oc(univ)
             pf = e.get_eigp(data=prc)
-            result[(ds.year, ds.month, ds.day)] = e.choose_eigp(histprc=prc, weights=pf)
+            result_port[(ds.year, ds.month, ds.day)] = e.choose_eigp(histprc=prc, weights=pf)
 
             # Return?
-            p = result[(ds.year, ds.month, ds.day)]['best'][1].index.tolist()
+            p = result_port[(ds.year, ds.month, ds.day)]['best'][1].index.tolist()
             p_rtn = self.get_rtn(p, ds, (ds + timedelta(days=7)))
-
-            result[(ds.year, ds.month, ds.day)]['best'].append(
-                (result[(ds.year, ds.month, ds.day)]['best'][1] * p_rtn).sum()
+            i_rtn = self.get_idx('IKS200', ds, ds + timedelta(days=7))
+            result_port[(ds.year, ds.month, ds.day)]['best'].append(
+                (result_port[(ds.year, ds.month, ds.day)]['best'][1] * p_rtn).sum()
             )
-            result[(ds.year, ds.month, ds.day)]['wrst'].append(
-                (result[(ds.year, ds.month, ds.day)]['wrst'][1] * p_rtn).sum()
+            result_port[(ds.year, ds.month, ds.day)]['wrst'].append(
+                (result_port[(ds.year, ds.month, ds.day)]['wrst'][1] * p_rtn).sum()
             )
+            # Index?
+            result_index[(ds.year, ds.month, ds.day)] = i_rtn
 
             ds += timedelta(days=7)
 
             if ds > datetime(year=ey, month=em, day=1):
                 break
-        return result
+        return result_port, result_index
 
-    def get_rtn(self, portfolios:Iterable, start_date:datetime, end_date:datetime):
+    def get_rtn(self, portfolios:Iterable, start_date:datetime, end_date:datetime) -> pd.Series:
         ro = self.qt.stk_data_multi(
             stock_code_ls=portfolios,
             start_date=start_date.strftime("%Y%m%d"),
@@ -114,19 +116,23 @@ class BackTest:
         r = r.pct_change().dropna().transpose()
         return r[r.columns[0]]
 
-    def get_idx(self, on_what:str, start:str, finish:str):
-        assert len(start) == 8, "Check the starting date"
-        assert len(finish) == 8, "Check the finishing date"
-        idx_strt = {
-            's': 'IKS004',
-            'm': 'IKS003',
-            'b': 'IKS002'
-        }
-        m = self.qt.ind_data(
-            index_code=idx_strt[on_what],
-            start_date=start,
-            end_date=finish,
+    def get_idx(self, idx:str, start_date:datetime, end_date:datetime) -> float:
+        mo = self.qt.ind_data(
+            index_code=idx,
+            start_date=start_date.strftime("%Y%m%d"),
+            end_date=end_date.strftime('%Y%m%d'),
             item='시가지수'
         )
-        m.VAL = m.VAL.astype('float32')
+        mc = self.qt.ind_data(
+            index_code=idx,
+            start_date=start_date.strftime("%Y%m%d"),
+            end_date=end_date.strftime('%Y%m%d'),
+            item='종가지수'
+        )
+        mo.VAL = mo.VAL.astype('float32')
+        mc.VAL = mc.VAL.astype('float32')
+        mo, mc = mo.sort_index(), mc.sort_index()
+
+        m = pd.concat([mo[:1], mc[(len(mc) - 1):]])
+        m = m.VAL.pct_change().dropna().tolist()[0]
         return m
